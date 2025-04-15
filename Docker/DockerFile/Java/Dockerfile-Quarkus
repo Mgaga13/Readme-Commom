@@ -1,0 +1,25 @@
+# Stage 1: Build
+FROM maven:3.8.6-openjdk-17 AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Stage 2: Run
+FROM openjdk:17-jre-alpine
+
+WORKDIR /app
+
+COPY --from=build /app/target/quarkus-app/lib /app/lib
+COPY --from=build /app/target/quarkus-app/*.jar /app/
+COPY --from=build /app/target/quarkus-app/app /app/app
+COPY --from=build /app/target/quarkus-app/quarkus /app/quarkus
+
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app/quarkus-run.jar"]

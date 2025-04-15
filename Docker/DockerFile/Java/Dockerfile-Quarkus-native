@@ -1,0 +1,19 @@
+# Stage 1: Build
+FROM quay.io/quarkus/centos-quarkus-maven:21.3.1-java17 AS build
+
+WORKDIR /app
+
+COPY src ./src
+COPY pom.xml .
+
+RUN mvn package -Pnative -DskipTests
+
+# Stage 2: Run
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6
+
+COPY --from=build /app/target/*-runner /app/application
+
+WORKDIR /app
+
+EXPOSE 8080
+ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]
