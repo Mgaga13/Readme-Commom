@@ -5,4 +5,4 @@
 - [Nginx](Nginx/)
 - [OPP](OPP/)
 - [Optimize DB](OptimizeDB/)
-- [SOLID](SOLID/)s
+- [SOLID](SOLID/)
